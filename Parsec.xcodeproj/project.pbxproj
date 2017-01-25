@@ -10,6 +10,7 @@
 		B40D109D1E373ADC00AC9204 /* Parsec.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B40D10931E373ADC00AC9204 /* Parsec.framework */; };
 		B40D10A21E373ADC00AC9204 /* ParsecTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40D10A11E373ADC00AC9204 /* ParsecTests.swift */; };
 		B40D10A41E373ADC00AC9204 /* Parsec.h in Headers */ = {isa = PBXBuildFile; fileRef = B40D10961E373ADC00AC9204 /* Parsec.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		B40D10AE1E373AF300AC9204 /* parsec.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40D10AD1E373AF300AC9204 /* parsec.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,6 +30,7 @@
 		B40D109C1E373ADC00AC9204 /* ParsecTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ParsecTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B40D10A11E373ADC00AC9204 /* ParsecTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParsecTests.swift; sourceTree = "<group>"; };
 		B40D10A31E373ADC00AC9204 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B40D10AD1E373AF300AC9204 /* parsec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = parsec.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,6 +74,7 @@
 			isa = PBXGroup;
 			children = (
 				B40D10961E373ADC00AC9204 /* Parsec.h */,
+				B40D10AD1E373AF300AC9204 /* parsec.swift */,
 				B40D10971E373ADC00AC9204 /* Info.plist */,
 			);
 			path = Parsec;
@@ -148,6 +151,7 @@
 				TargetAttributes = {
 					B40D10921E373ADC00AC9204 = {
 						CreatedOnToolsVersion = 8.0;
+						LastSwiftMigration = 0800;
 						ProvisioningStyle = Automatic;
 					};
 					B40D109B1E373ADC00AC9204 = {
@@ -196,6 +200,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B40D10AE1E373AF300AC9204 /* parsec.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -317,6 +322,7 @@
 		B40D10A81E373ADC00AC9204 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
@@ -330,6 +336,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.lindkvist.Parsec;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
@@ -337,6 +344,7 @@
 		B40D10A91E373ADC00AC9204 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
@@ -357,6 +365,7 @@
 		B40D10AB1E373ADC00AC9204 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = ParsecTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
@@ -369,6 +378,7 @@
 		B40D10AC1E373ADC00AC9204 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = ParsecTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
