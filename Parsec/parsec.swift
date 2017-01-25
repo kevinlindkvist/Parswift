@@ -23,7 +23,13 @@ public struct State<Input: Collection, UserState> {
   /// The current user state.
   let userState: UserState
   /// The current position of the parser in the input.
-  let position: Int
+  let position: SourcePosition
+}
+
+public struct SourcePosition {
+  let name = ""
+  let line = 1
+  let column = 1
 }
 
 public enum Consumed<Output, Input: Collection, UserState> {
@@ -56,7 +62,7 @@ public enum Either<Left, Right> {
 }
 
 public struct ParseError {
-  let position: Int
+  let position: SourcePosition
   let messages: [ErrorMessage]
 }
 
@@ -238,4 +244,86 @@ func setExpect(messages: [String], error: ParseError) -> ParseError {
 infix operator <|> : ChoicePrecedence
 public func <|> <Output, Input: Collection, UserState> (parser: ParserClosure<Output, Input, UserState>, otherParser: ParserClosure<Output, Input, UserState>) -> ParserClosure<Output, Input, UserState> {
   return plus(parser: parser, otherParser: otherParser)
+}
+
+/// Parses the input and pretends like no input was consumed if the parser fails.
+public func attempt<Output, Input: Collection, UserState> (parser: ParserClosure<Output, Input, UserState>) -> ParserClosure<Output, Input, UserState> {
+  return {{ state in
+    switch parser()(state) {
+    case let .consumed(reply):
+      switch reply {
+      case let .error(message): return .empty(.error(message))
+      default: return .consumed(reply)
+      }
+    case let other: return other
+    }
+    }}
+}
+
+public func token<Output, Input: Collection, UserState>(showToken: @escaping (Input.Iterator.Element) -> String, tokenPosition: @escaping (Input.Iterator.Element) -> SourcePosition, test: @escaping (Input.Iterator.Element) -> Output?) -> ParserClosure<Output, Input, UserState> where Input.SubSequence == Input {
+  let getNextPosition: (SourcePosition, Input.Iterator.Element, Input) -> SourcePosition = { _, current, rest in
+    if let next = rest.first {
+      return tokenPosition(next)
+    } else {
+      return tokenPosition(current)
+    }
+  }
+  return token(showToken: showToken, nextTokenPosition: getNextPosition, test: test)
+}
+
+public func token<Output, Input: Collection, UserState>(showToken: @escaping (Input.Iterator.Element) -> String,
+                  nextTokenPosition: @escaping (SourcePosition, Input.Iterator.Element, Input) -> SourcePosition,
+                  test: @escaping (Input.Iterator.Element) -> Output?)
+  -> ParserClosure<Output, Input, UserState> where Input.SubSequence == Input {
+    return {{ (state: State<Input, UserState>) in
+      if let head = state.input.first, let result = test(head) {
+        let tail: Input = state.input.dropFirst()
+        let adjustedPosition: SourcePosition = nextTokenPosition(state.position, head, tail)
+        let adjustedState: State<Input, UserState> = State(input: tail, userState: state.userState, position: adjustedPosition)
+        return .consumed(.some(result, adjustedState, unknownError(state: adjustedState)))
+      } else if let head = state.input.first {
+        return .empty(.error(ParseError(position: state.position, messages: [.systemUnexpected(showToken(head))])))
+      } else {
+        return .empty(.error(ParseError(position: state.position, messages: [.systemUnexpected("")])))
+      }
+      }}
+}
+
+public func tokens<Input: Collection, UserState> (showTokens: @escaping ([Input.Iterator.Element]) -> String, nextTokenPosition: @escaping (SourcePosition, [Input.Iterator.Element]) -> SourcePosition, tokens: [Input.Iterator.Element]) -> ParserClosure<[Input.Iterator.Element], Input, UserState>
+  where Input.Iterator.Element: Equatable, Input.SubSequence == Input
+{
+  if let token = tokens.first {
+    let restOfTokens = tokens.dropFirst()
+    return {{ state in
+      let errorEndOfFile = ParseError(position: state.position, messages: [.systemUnexpected(""), .expected(showTokens(tokens))])
+      let errorExpected = { x in ParseError(position: state.position, messages: [.systemUnexpected(showTokens([x])), .expected(showTokens(tokens))]) }
+
+      func walk(restOfTokens: ArraySlice<Input.Iterator.Element>, restOfInput: Input) -> Consumed<[Input.Iterator.Element], Input, UserState> {
+        if let firstToken = restOfTokens.first {
+          let tailOfTokens = restOfTokens.dropFirst()
+          if let firstInput = restOfInput.first {
+            let tailOfInput = restOfInput.dropFirst()
+            if firstToken == firstInput { return walk(restOfTokens: tailOfTokens, restOfInput: tailOfInput) }
+            else { return .consumed(.error(errorExpected(firstInput))) }
+          } else {
+            return .consumed(.error(errorEndOfFile))
+          }
+        } else {
+          let adjustedPosition = nextTokenPosition(state.position, tokens)
+          let adjustedState = State(input: restOfInput, userState: state.userState, position: adjustedPosition)
+          return .consumed(.some(tokens, adjustedState, unknownError(state: adjustedState)))
+        }
+      }
+
+      if let firstInput = state.input.first {
+        let restOfInput = state.input.dropFirst()
+        if token == firstInput { return walk(restOfTokens: restOfTokens, restOfInput: restOfInput) }
+        else { return .empty(.error(errorExpected(firstInput))) }
+      } else {
+        return .empty(.error(errorEndOfFile))
+      }
+      }}
+  } else {
+    return {{ state in .empty(.some([], state, unknownError(state: state))) }}
+  }
 }
