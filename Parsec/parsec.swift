@@ -108,19 +108,19 @@ precedencegroup LabelPrecedence {
 /// `A` is the output type of the left hand side, `B` is the output type of the right hand side.
 /// `C` is the input type, and `U` is the user state.
 infix operator >>- : BindPrecedence
-public func >>-<A, B, C: Collection, U>(parser: ParserClosure<A, C, U>, f: @escaping (A) -> ParserClosure<B, C, U>) -> ParserClosure<B, C, U> {
+public func >>-<A, B, C: Collection, U>(parser: @escaping ParserClosure<A, C, U>, f: @escaping (A) -> ParserClosure<B, C, U>) -> ParserClosure<B, C, U> {
   return bind(parser: parser, f: f)
 }
 
 /// First parses the input using the left hand side, discards the output, and then parses the remaining input using the right hand side.
 infix operator *> : BindPrecedence
-public func *><A, B, C: Collection, U>(parser: ParserClosure<A, C, U>, f: ParserClosure<B, C, U>) -> ParserClosure<B, C, U> {
+public func *><A, B, C: Collection, U>(parser: @escaping ParserClosure<A, C, U>, f: @escaping ParserClosure<B, C, U>) -> ParserClosure<B, C, U> {
   return parser >>- { _ in f }
 }
 
 /// First parses the input using the left hand side, saves the output, and then parses the remaining input using the right hand side and discards the output.
 infix operator <* : BindPrecedence
-public func <*<A, B, C: Collection, U>(parser: ParserClosure<A, C, U>, f: ParserClosure<B, C, U>) -> ParserClosure<A, C, U> {
+public func <*<A, B, C: Collection, U>(parser: @escaping ParserClosure<A, C, U>, f: @escaping ParserClosure<B, C, U>) -> ParserClosure<A, C, U> {
   return parser >>- { x in f *> pure(x) }
 }
 
@@ -133,11 +133,16 @@ func parserReturn<Output, Input: Collection, UserState>(_ x: Output) -> ParserCl
   return {{ state in .empty(.some(x, state, unknownError(state: state))) }}
 }
 
+public func create<Output, Input: Collection, UserState> (x: Output) -> ParserClosure<Output, Input, UserState> {
+  return parserReturn(x)
+}
+
+
 
 /// The bind operator implementation.
 /// `A` is the output type of the left hand side, `B` is the output type of the right hand side.
 /// `C` is the input type, and `U` is the user state.
-func bind<A, B, C: Collection, U>(parser: ParserClosure<A, C, U>, f: @escaping (A) -> ParserClosure<B, C, U>) -> ParserClosure<B, C, U> {
+func bind<A, B, C: Collection, U>(parser: @escaping ParserClosure<A, C, U>, f: @escaping (A) -> ParserClosure<B, C, U>) -> ParserClosure<B, C, U> {
   return {
     { state in
       switch parser()(state) {
@@ -187,7 +192,7 @@ func fail<Output, Input: Collection, UserState>(message: String) -> ParserClosur
 }
 
 /// Parses input using `parser`, and if that fails *without consuming any input*, attempts parsing using otherParser.
-func plus<Output, Input: Collection, UserState>(parser: ParserClosure<Output, Input, UserState>, otherParser: ParserClosure<Output, Input, UserState>) -> ParserClosure<Output, Input, UserState> {
+func plus<Output, Input: Collection, UserState>(parser: @escaping ParserClosure<Output, Input, UserState>, otherParser: @escaping ParserClosure<Output, Input, UserState>) -> ParserClosure<Output, Input, UserState> {
   return {{ state in
     switch parser()(state) {
     // If the first parser failed try the second parser.
@@ -215,17 +220,17 @@ func plus<Output, Input: Collection, UserState>(parser: ParserClosure<Output, In
 
 /// Parses input using `parser`, and if that fails *without consuming input*, replaces the error message with `message`. This is useful to return meaningful error messages.
 infix operator <?> : LabelPrecedence
-public func <?><Output, Input: Collection, UserState>(parser: ParserClosure<Output, Input, UserState>, message: String) -> ParserClosure<Output, Input, UserState> {
+public func <?><Output, Input: Collection, UserState>(parser: @escaping ParserClosure<Output, Input, UserState>, message: String) -> ParserClosure<Output, Input, UserState> {
   return label(parser: parser, message: message)
 }
 
 /// Parses input using `parser`, and if that fails *without consuming input*, replaces the error message with `message`. This is useful to return meaningful error messages.
-public func label<Output, Input: Collection, UserState>(parser: ParserClosure<Output, Input, UserState>, message: String) -> ParserClosure<Output, Input, UserState> {
+public func label<Output, Input: Collection, UserState>(parser: @escaping ParserClosure<Output, Input, UserState>, message: String) -> ParserClosure<Output, Input, UserState> {
   return labels(parser: parser, messages: [message])
 }
 
 /// Parses input using `parser`, and if that fails *without consuming input*, replaces the error message with `messages`. This is useful to return meaningful error messages.
-public func labels<Output, Input: Collection, UserState>(parser: ParserClosure<Output, Input, UserState>, messages: [String]) -> ParserClosure<Output, Input, UserState> {
+public func labels<Output, Input: Collection, UserState>(parser: @escaping ParserClosure<Output, Input, UserState>, messages: [String]) -> ParserClosure<Output, Input, UserState> {
   return {{ state in
     switch parser()(state) {
     case let .empty(.error(error)): return .empty(.error(setExpect(messages: messages, error: error)))
@@ -242,12 +247,12 @@ func setExpect(messages: [String], error: ParseError) -> ParseError {
 
 /// Parses the input using `parser` and if that fails *without consuming any input*, attempts to parse the input with `otherParser`.
 infix operator <|> : ChoicePrecedence
-public func <|> <Output, Input: Collection, UserState> (parser: ParserClosure<Output, Input, UserState>, otherParser: ParserClosure<Output, Input, UserState>) -> ParserClosure<Output, Input, UserState> {
+public func <|> <Output, Input: Collection, UserState> (parser: @escaping ParserClosure<Output, Input, UserState>, otherParser: @escaping ParserClosure<Output, Input, UserState>) -> ParserClosure<Output, Input, UserState> {
   return plus(parser: parser, otherParser: otherParser)
 }
 
 /// Parses the input and pretends like no input was consumed if the parser fails.
-public func attempt<Output, Input: Collection, UserState> (parser: ParserClosure<Output, Input, UserState>) -> ParserClosure<Output, Input, UserState> {
+public func attempt<Output, Input: Collection, UserState> (parser: @escaping ParserClosure<Output, Input, UserState>) -> ParserClosure<Output, Input, UserState> {
   return {{ state in
     switch parser()(state) {
     case let .consumed(reply):
@@ -327,3 +332,49 @@ public func tokens<Input: Collection, UserState> (showTokens: @escaping ([Input.
     return {{ state in .empty(.some([], state, unknownError(state: state))) }}
   }
 }
+
+
+public func many<Output, Input: Collection, UserState>(accumulator: @escaping (Output, [Output]) -> [Output], parser: @escaping ParserClosure<Output, Input, UserState>) -> ParserClosure<[Output], Input, UserState> {
+  func walk (xs: [Output], x: Output, state: State<Input, UserState>) -> Consumed<[Output], Input, UserState> {
+    switch parser()(state) {
+    case let .consumed(reply):
+      switch reply {
+      case let .error(error): return .consumed(.error(error))
+      case let .some(output, state, _): return walk(xs: accumulator(x, xs), x: output, state: state)
+      }
+    case let .empty(reply):
+      switch reply {
+      case let .error(error): return .consumed(.some(accumulator(x, xs), state, error))
+      case .some: fatalError()
+      }
+    }
+  }
+
+  return {{ state in
+    switch parser()(state) {
+    case let .consumed(reply):
+      switch reply {
+      case let .error(error): return .consumed(.error(error))
+      case let .some(output, state, _): return walk(xs: [], x: output, state: state)
+      }
+    case let .empty(reply):
+      switch reply {
+      case let .error(error): return .empty(.some([], state, error))
+      case .some: fatalError()
+      }
+    }
+    }}
+}
+
+public func many<Output, Input: Collection, UserState>(parser: @escaping ParserClosure<Output, Input, UserState>) -> ParserClosure<[Output], Input, UserState> {
+  return many(accumulator: append, parser: parser)
+}
+
+func append<A>(_ next: A, _ list: [A]) -> [A] {
+  return list + [next]
+}
+
+public func skipMany<Output, Input: Collection, UserState>(parser: @escaping ParserClosure<Output, Input, UserState>) -> ParserClosure<(), Input, UserState> {
+  return many(accumulator: { _, _ in []} , parser: parser) *> create(x: ())
+}
+
