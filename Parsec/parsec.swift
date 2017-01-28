@@ -27,9 +27,9 @@ public struct State<Input: Collection, UserState> {
 }
 
 public struct SourcePosition {
-  let name = ""
-  let line = 1
-  let column = 1
+  let name: String
+  let line: Int
+  let column: Int
 }
 
 public enum Consumed<Output, Input: Collection, UserState> {
@@ -376,5 +376,39 @@ func append<A>(_ next: A, _ list: [A]) -> [A] {
 
 public func skipMany<Output, Input: Collection, UserState>(parser: @escaping ParserClosure<Output, Input, UserState>) -> ParserClosure<(), Input, UserState> {
   return many(accumulator: { _, _ in []} , parser: parser) *> create(x: ())
+}
+
+public func run<Output, Input: Collection, UserState>(parser: ParserClosure<Output, Input, UserState>, userState: UserState, fileName: String, input: Input) -> Either<ParseError, Output> {
+  switch parser()(State(input: input, userState: userState, position: SourcePosition(name: fileName, line: 1, column: 1))) {
+  case let .consumed(reply):
+    switch reply {
+    case let .some(output, _, _): return .right(output)
+    case let .error(error): return .left(error)
+    }
+  case let .empty(reply):
+    switch reply {
+    case let .some(output, _, _): return .right(output)
+    case let .error(error): return .left(error)
+    }
+  }
+}
+
+public func parserPosition<Input: Collection, UserState>() -> Parser<SourcePosition, Input, UserState> {
+  return (parserState >>- { state in create(x: state.position) })()
+}
+
+public func parserInput<Input: Collection, UserState>() -> Parser<Input, Input, UserState> {
+  return (parserState >>- { state in create(x: state.input) })()
+}
+
+public func parserState<Input: Collection, UserState>() -> Parser<State<Input, UserState>, Input, UserState> {
+  return (updateParserState { state in state })()
+}
+
+public func updateParserState<Input: Collection, UserState>(f: @escaping (State<Input, UserState>) -> State<Input, UserState>) -> ParserClosure<State<Input, UserState>, Input, UserState> {
+  return {{ state in
+    let newState = f(state)
+    return .empty(.some(newState, newState, unknownError(state: newState)))
+    }}
 }
 
