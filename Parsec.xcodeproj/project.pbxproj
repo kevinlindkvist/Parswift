@@ -11,6 +11,12 @@
 		B40D10A21E373ADC00AC9204 /* ParsecTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40D10A11E373ADC00AC9204 /* ParsecTests.swift */; };
 		B40D10A41E373ADC00AC9204 /* Parsec.h in Headers */ = {isa = PBXBuildFile; fileRef = B40D10961E373ADC00AC9204 /* Parsec.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B40D10AE1E373AF300AC9204 /* parsec.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40D10AD1E373AF300AC9204 /* parsec.swift */; };
+		B4CF79A31E3D3D8300085BE3 /* source_position.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4CF79A21E3D3D8300085BE3 /* source_position.swift */; };
+		B4CF79A51E3D3DAB00085BE3 /* state.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4CF79A41E3D3DAB00085BE3 /* state.swift */; };
+		B4CF79A71E3D3E4C00085BE3 /* responses.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4CF79A61E3D3E4C00085BE3 /* responses.swift */; };
+		B4CF79A91E3D3E6300085BE3 /* errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4CF79A81E3D3E6300085BE3 /* errors.swift */; };
+		B4CF79AB1E3D3ED000085BE3 /* string.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4CF79AA1E3D3ED000085BE3 /* string.swift */; };
+		B4CF79C81E3D848000085BE3 /* combinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4CF79C71E3D848000085BE3 /* combinator.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -31,6 +37,12 @@
 		B40D10A11E373ADC00AC9204 /* ParsecTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParsecTests.swift; sourceTree = "<group>"; };
 		B40D10A31E373ADC00AC9204 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B40D10AD1E373AF300AC9204 /* parsec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = parsec.swift; sourceTree = "<group>"; };
+		B4CF79A21E3D3D8300085BE3 /* source_position.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = source_position.swift; sourceTree = "<group>"; };
+		B4CF79A41E3D3DAB00085BE3 /* state.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = state.swift; sourceTree = "<group>"; };
+		B4CF79A61E3D3E4C00085BE3 /* responses.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = responses.swift; sourceTree = "<group>"; };
+		B4CF79A81E3D3E6300085BE3 /* errors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = errors.swift; sourceTree = "<group>"; };
+		B4CF79AA1E3D3ED000085BE3 /* string.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = string.swift; sourceTree = "<group>"; };
+		B4CF79C71E3D848000085BE3 /* combinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = combinator.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +87,12 @@
 			children = (
 				B40D10961E373ADC00AC9204 /* Parsec.h */,
 				B40D10AD1E373AF300AC9204 /* parsec.swift */,
+				B4CF79C71E3D848000085BE3 /* combinator.swift */,
+				B4CF79A21E3D3D8300085BE3 /* source_position.swift */,
+				B4CF79A41E3D3DAB00085BE3 /* state.swift */,
+				B4CF79A61E3D3E4C00085BE3 /* responses.swift */,
+				B4CF79A81E3D3E6300085BE3 /* errors.swift */,
+				B4CF79AA1E3D3ED000085BE3 /* string.swift */,
 				B40D10971E373ADC00AC9204 /* Info.plist */,
 			);
 			path = Parsec;
@@ -201,6 +219,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				B40D10AE1E373AF300AC9204 /* parsec.swift in Sources */,
+				B4CF79A31E3D3D8300085BE3 /* source_position.swift in Sources */,
+				B4CF79A91E3D3E6300085BE3 /* errors.swift in Sources */,
+				B4CF79A51E3D3DAB00085BE3 /* state.swift in Sources */,
+				B4CF79C81E3D848000085BE3 /* combinator.swift in Sources */,
+				B4CF79AB1E3D3ED000085BE3 /* string.swift in Sources */,
+				B4CF79A71E3D3E4C00085BE3 /* responses.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
