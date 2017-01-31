@@ -239,8 +239,11 @@ public func tokens<Input: Collection, UserState> (showTokens: @escaping ([Input.
           let tailOfTokens = restOfTokens.dropFirst()
           if let firstInput = restOfInput.first {
             let tailOfInput = restOfInput.dropFirst()
-            if firstToken == firstInput { return walk(restOfTokens: tailOfTokens, restOfInput: tailOfInput) }
-            else { return .consumed(.error(errorExpected(firstInput))) }
+            if firstToken == firstInput {
+              return walk(restOfTokens: tailOfTokens, restOfInput: tailOfInput)
+            } else {
+              return .consumed(.error(errorExpected(firstInput)))
+            }
           } else {
             return .consumed(.error(errorEndOfFile))
           }
@@ -311,7 +314,7 @@ public func skipMany<Output, Input: Collection, UserState>(parser: @escaping Par
 
 // MARK: Running Parsers
 
-public func run<Output, Input: Collection, UserState>(parser: ParserClosure<Output, Input, UserState>, userState: UserState, fileName: String, input: Input) -> Either<ParseError, Output> {
+public func parse<Output, Input: Collection, UserState>(input: Input, with parser: ParserClosure<Output, Input, UserState>, userState: UserState, fileName: String) -> Either<ParseError, Output> {
   switch parser()(State(input: input, userState: userState, position: SourcePosition(name: fileName, line: 1, column: 1))) {
   case let .consumed(reply):
     switch reply {
@@ -326,19 +329,8 @@ public func run<Output, Input: Collection, UserState>(parser: ParserClosure<Outp
   }
 }
 
-public func parse<Output, Input: Collection> (parser: ParserClosure<Output, Input, ()>, fileName: String, input: Input) -> Either<ParseError, Output> {
-  return run(parser: parser, userState: (), fileName: fileName, input: input)
-}
-
-public func parse<Output, Input: Collection, UserState> (test: ParserClosure<Output, Input, UserState>, userState: UserState, input: Input) {
-  switch run(parser: test, userState: userState, fileName: "", input: input) {
-  case let .left(error): print(error)
-  case let .right(x): print(x)
-  }
-}
-
-public func parse<Output, Input: Collection> (test: ParserClosure<Output, Input, ()>, input: Input) {
-  parse(test: test, userState: (), input: input)
+public func parse<Output, Input: Collection> (input: Input, with parser: ParserClosure<Output, Input, ()>) -> Either<ParseError, Output> {
+  return parse(input: input, with: parser, userState: (), fileName: "")
 }
 
 // MARK: Parser State

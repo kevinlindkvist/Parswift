@@ -22,6 +22,14 @@ public struct SourcePosition {
   }
 }
 
+extension SourcePosition: Equatable {
+
+  public static func ==(lhs: SourcePosition, rhs: SourcePosition) -> Bool {
+    return lhs.line == rhs.line && lhs.column == rhs.column
+  }
+
+}
+
 public func +(left: SourcePosition, right: Character) -> SourcePosition {
   return left.add(character: right)
 }
