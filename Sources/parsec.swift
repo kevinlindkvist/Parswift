@@ -1,11 +1,3 @@
-//
-//  parsec.swift
-//  Parsec
-//
-//  Created by Kevin Lindkvist on 1/23/17.
-//  Copyright © 2017 lindkvist. All rights reserved.
-//
-
 import Foundation
 
 /// A parser is a function that consumes input and produces a response object.

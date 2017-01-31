@@ -1,11 +1,3 @@
-//
-//  errors.swift
-//  Parsec
-//
-//  Created by Kevin Lindkvist on 1/28/17.
-//  Copyright © 2017 lindkvist. All rights reserved.
-//
-
 import Foundation
 
 public struct ParseError {

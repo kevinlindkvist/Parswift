@@ -1,11 +1,3 @@
-//
-//  combinator.swift
-//  Parsec
-//
-//  Created by Kevin Lindkvist on 1/28/17.
-//  Copyright © 2017 lindkvist. All rights reserved.
-//
-
 import Foundation
 
 public func separate<Output, Input: Collection, UserState, Separator>(parser: @escaping ParserClosure<Output, Input, UserState>, by: @escaping ParserClosure<Separator, Input, UserState>) -> ParserClosure<[Output], Input, UserState> {
