@@ -304,6 +304,26 @@ public func skipMany<Output, Input: Collection, UserState>(parser: @escaping Par
   return many(accumulator: { _, _ in []} , parser: parser) *> create(x: ())
 }
 
+public func add<Output, Input: Collection, UserState>(parser: @escaping ParserClosure<Output, Input, UserState>, to otherParser: @escaping ParserClosure<Output, Input, UserState>) -> ParserClosure<Output, Input, UserState> {
+  return {{ state in
+    switch parser()(state) {
+    case let .empty(.error(firstMessage)):
+      switch otherParser()(state) {
+      case let .empty(.error(secondMessage)): return .empty(.error(merge(firstError: firstMessage, secondError: secondMessage)))
+      case let .empty(.some(x, input, secondMessage)): return .empty(.some(x, input, merge(firstError: firstMessage, secondError: secondMessage)))
+      case let consumed: return consumed
+      }
+    case let .empty(.some(x, input, firstMessage)):
+      switch otherParser()(state) {
+      case let .empty(.error(secondMessage)): return .empty(.some(x, input, merge(firstError: firstMessage, secondError: secondMessage)))
+      case let .empty(.some(_, _, secondMessage)): return .empty(.some(x, input, merge(firstError: firstMessage, secondError: secondMessage)))
+      case let consumed: return consumed
+      }
+    case let consumed: return consumed
+    }
+    }}
+}
+
 // MARK: Running Parsers
 
 public func parse<Output, Input: Collection, UserState>(input: Input, with parser: ParserClosure<Output, Input, UserState>, userState: UserState, fileName: String) -> Either<ParseError, Output> {

@@ -31,3 +31,16 @@ public func string<Input: Collection, UserState>(string: String) -> ParserClosur
 public func character<Input: Collection, UserState> (character: Character) -> ParserClosure<Character, Input, UserState> where Input.SubSequence == Input, Input.Iterator.Element == Character {
   return satisfy { x in x == character } <?> String(character)
 }
+
+public func skipSpaces<Input: Collection, UserState>() -> Parser<(), Input, UserState> where Input.SubSequence == Input, Input.Iterator.Element == Character {
+  return (skipMany(parser: space) <?> "whitespace")()
+}
+
+public func space<Input: Collection, UserState>() -> Parser<Character, Input, UserState> where Input.SubSequence == Input, Input.Iterator.Element == Character {
+  return (satisfy(f: isSpace) <?> "space")()
+}
+
+func isSpace(character: Character) -> Bool {
+  let whitespaces = CharacterSet.whitespacesAndNewlines
+  return String(character).rangeOfCharacter(from: whitespaces) != nil
+}
