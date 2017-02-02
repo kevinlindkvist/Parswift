@@ -44,3 +44,7 @@ func isSpace(character: Character) -> Bool {
   let whitespaces = CharacterSet.whitespacesAndNewlines
   return String(character).rangeOfCharacter(from: whitespaces) != nil
 }
+
+public func keyword(identifier: String) -> ParserClosure<String, String.CharacterView, ()> {
+  return attempt(parser: skipSpaces *> string(string: identifier) <* skipSpaces)
+}
