@@ -40,9 +40,22 @@ public func space<Input: Collection, UserState>() -> Parser<Character, Input, Us
   return (satisfy(f: isSpace) <?> "space")()
 }
 
+public func alphanumerics<Input: Collection, UserState>() -> Parser<String, Input, UserState> where Input.SubSequence == Input, Input.Iterator.Element == Character {
+  return (many(parser: alphanumeric) >>- { create(x: String($0)) } <?> "alphanumerics")()
+}
+
+public func alphanumeric<Input: Collection, UserState>() -> Parser<Character, Input, UserState> where Input.SubSequence == Input, Input.Iterator.Element == Character {
+  return satisfy(f: isAlphanumeric)()
+}
+
 func isSpace(character: Character) -> Bool {
   let whitespaces = CharacterSet.whitespacesAndNewlines
   return String(character).rangeOfCharacter(from: whitespaces) != nil
+}
+
+func isAlphanumeric(character: Character) -> Bool {
+  let alphanumerics = CharacterSet.alphanumerics
+  return String(character).rangeOfCharacter(from: alphanumerics) != nil
 }
 
 public func keyword(identifier: String) -> ParserClosure<String, String.CharacterView, ()> {

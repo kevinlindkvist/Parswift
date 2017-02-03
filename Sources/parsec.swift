@@ -296,6 +296,16 @@ public func many<Output, Input: Collection, UserState>(parser: @escaping ParserC
   return many(accumulator: append, parser: parser)
 }
 
+public func many1<Output, Input: Collection, UserState> (parser: @escaping ParserClosure<Output, Input, UserState>) -> ParserClosure<[Output], Input, UserState> {
+  return parser >>- { x in
+    many(parser: parser) >>- { xs in
+      var r = [x]
+      r.append(contentsOf: xs)
+      return create(x: r)
+    }
+  }
+}
+
 public func append<A>(_ next: A, _ list: [A]) -> [A] {
   return list + [next]
 }
@@ -359,10 +369,18 @@ public func parserState<Input: Collection, UserState>() -> Parser<State<Input, U
   return (updateParserState { state in state })()
 }
 
+public func userState<Input: Collection, UserState> () -> Parser<UserState, Input, UserState> {
+  return (parserState >>- { state in create(x: state.userState)})()
+}
+
 public func updateParserState<Input: Collection, UserState>(f: @escaping (State<Input, UserState>) -> State<Input, UserState>) -> ParserClosure<State<Input, UserState>, Input, UserState> {
   return {{ state in
     let newState = f(state)
     return .empty(.some(newState, newState, unknownError(state: newState)))
     }}
+}
+
+public func modifyState<Input: Collection, UserState>(f: @escaping (UserState) -> UserState) -> ParserClosure<(), Input, UserState> {
+  return updateParserState { state in State(input: state.input, userState: f(state.userState), position: state.position) } *> create(x: ())
 }
 
