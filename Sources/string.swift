@@ -25,14 +25,16 @@ public func string<Input: Collection, UserState>(string: String) -> ParserClosur
     return characters.reduce(position, +)
   }
 
-  return tokens(showTokens: show, nextTokenPosition: next, tokens: Array(string.characters)) >>- { characters in create(x: String(characters)) }
+  return tokens(showTokens: show, nextTokenPosition: next, tokens: Array(string.characters)) >>- { characters in
+    return create(x: String(characters))
+  }
 }
 
 public func character<Input: Collection, UserState> (character: Character) -> ParserClosure<Character, Input, UserState> where Input.SubSequence == Input, Input.Iterator.Element == Character {
   return satisfy { x in x == character } <?> String(character)
 }
 
-public func skipSpaces<Input: Collection, UserState>() -> Parser<(), Input, UserState> where Input.SubSequence == Input, Input.Iterator.Element == Character {
+public func spaces<Input: Collection, UserState>() -> Parser<(), Input, UserState> where Input.SubSequence == Input, Input.Iterator.Element == Character {
   return (skipMany(parser: space) <?> "whitespace")()
 }
 
@@ -59,5 +61,5 @@ func isAlphanumeric(character: Character) -> Bool {
 }
 
 public func keyword(identifier: String) -> ParserClosure<String, String.CharacterView, ()> {
-  return attempt(parser: skipSpaces *> string(string: identifier) <* skipSpaces)
+  return attempt(parser: spaces *> string(string: identifier) <* spaces)
 }

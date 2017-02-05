@@ -18,11 +18,12 @@ public func chainl<Output, Input: Collection, UserState>(parser: @escaping Parse
 
 public func chainl1<Output, Input: Collection, UserState>(parser: @escaping ParserClosure<Output, Input, UserState>, oper: @escaping ParserClosure<(Output, Output) -> Output, Input, UserState>) -> ParserClosure<Output, Input, UserState> {
   func rest(x: Output) -> ParserClosure<Output, Input, UserState> {
-    return oper >>- { f in
+    return attempt(parser: oper >>- { f in
       parser >>- { y in
         rest(x: f(x, y))
       }
-      } <|> create(x: x)
+      })
+      <|> create(x: x)
   }
   return parser >>- rest
 }
