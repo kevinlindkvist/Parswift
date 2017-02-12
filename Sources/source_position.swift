@@ -12,6 +12,12 @@ public struct SourcePosition {
     default: return SourcePosition(name: name, line: line, column: column+1)
     }
   }
+
+  public init(name: String, line: Int, column: Int) {
+    self.name = name
+    self.line = line
+    self.column = column
+  }
 }
 
 extension SourcePosition: Equatable {

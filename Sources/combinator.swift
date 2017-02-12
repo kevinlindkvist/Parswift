@@ -27,3 +27,24 @@ public func chainl1<Output, Input: Collection, UserState>(parser: @escaping Pars
   }
   return parser >>- rest
 }
+
+public func unexpected<Output, Input: Collection, UserState> (message: String) -> ParserClosure<Output, Input, UserState> {
+  return {{ state in
+    .empty(.error(ParseError(position: state.position, messages: [.unexpected(message)])))
+    }}
+}
+
+public func any<Input: Collection, UserState>() -> Parser<Input.Iterator.Element, Input, UserState>
+  where Input.SubSequence == Input {
+    return (token(showToken: { String(describing: $0) }, nextTokenPosition: { pos, _, _ in pos }, test: { $0 }))()
+}
+
+public func endOfInput<Input: Collection, UserState>() -> Parser<(), Input, UserState>
+  where Input.SubSequence == Input {
+    return (notFollowed(by: any) <?> "end of input")()
+}
+
+public func notFollowed<Output, Input: Collection, UserState>(by parser: @escaping ParserClosure<Output, Input, UserState>) -> ParserClosure<(), Input, UserState> {
+  return attempt(parser: parser) >>- { c in unexpected(message: String(describing: c)) }
+    <|> create(x: ())
+}

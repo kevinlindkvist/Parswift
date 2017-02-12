@@ -3,6 +3,11 @@ import Foundation
 public struct ParseError {
   let position: SourcePosition
   let messages: [ErrorMessage]
+
+  public init(position: SourcePosition, messages: [ErrorMessage]) {
+    self.position = position
+    self.messages = messages
+  }
 }
 
 extension ParseError: CustomStringConvertible {
