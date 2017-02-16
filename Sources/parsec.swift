@@ -351,6 +351,21 @@ public func parse<Output, Input: Collection, UserState>(input: Input, with parse
   }
 }
 
+public func parse<Output, Input: Collection, UserState>(input: Input, with parser: ParserClosure<Output, Input, UserState>, userState: UserState, fileName: String) -> Either<ParseError, (Output, UserState)> {
+  switch parser()(State(input: input, userState: userState, position: SourcePosition(name: fileName, line: 1, column: 1))) {
+  case let .consumed(reply):
+    switch reply {
+    case let .some(x, state, _): return .right((x, state.userState))
+    case let .error(error): return .left(error)
+    }
+  case let .empty(reply):
+    switch reply {
+    case let .some(x, state, _): return .right((x, state.userState))
+    case let .error(error): return .left(error)
+    }
+  }
+}
+
 public func parse<Output, Input: Collection> (input: Input, with parser: ParserClosure<Output, Input, ()>) -> Either<ParseError, Output> {
   return parse(input: input, with: parser, userState: (), fileName: "")
 }
